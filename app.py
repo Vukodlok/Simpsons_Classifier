@@ -53,5 +53,6 @@ gr.Interface(
     inputs=gr.Image(type="pil"),
     outputs="label",
     title="Which Simpsons Character Are You?"
-).launch()
+).launch(share=False, server_name="0.0.0.0", server_port=7860)
+
 
