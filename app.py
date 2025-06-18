@@ -55,7 +55,7 @@ def classify(image):
         confidences.append({"label": label, "confidence": score})
             
     return {
-        "label": confidence[0]["label"],
+        "label": confidences[0]["label"],
         "confidences": confidences
     }
 
