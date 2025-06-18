@@ -1,6 +1,7 @@
 import gradio as gr
 from PIL import Image
 import torch
+import torch.nn.functional as F
 from torchvision import transforms
 from transformers import ViTImageProcessor, ViTForImageClassification
 
@@ -44,14 +45,23 @@ def classify(image):
     input_tensor = transform(image).unsqueeze(0)
     with torch.no_grad():
         outputs = model(input_tensor)
-    predicted = torch.argmax(outputs.logits, dim=1).item()
-    return id2label[predicted]
+        probs = F.softmax(outputs.logits, dim=1)[0]
+    top_probs, top_indices = torch.topk(probs, 3)
+    results = {}
+
+    # Return top 3 predictions with percentage values
+    for i in range(3):
+        label = id2label[top_indices[i].item()]
+        confidence = top_probs[i].item() * 100
+        results[label] = f'{confidence:.2f}%'
+
+    return results
 
 # Gradio app
 gr.Interface(
     fn=classify,
     inputs=gr.Image(type="pil"),
-    outputs="label",
+    outputs=gr.Label(num_top_classes=3),
     title="Which Simpsons Character Are You?"
 ).launch(share=True, server_name="0.0.0.0", server_port=7860)
 
