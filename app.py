@@ -103,12 +103,30 @@ label, .output-class, .gr-label {
 }
 """
 
+# HTML for social media sharing buttons
+share_html = """
+<div style="margin-top: 20px; text-align: center;">
+    <p style="color: #FFCC00; font-family: 'Freckle Face', cursive;">Share your result:</p>
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You" target="_blank" style="margin: 0 10px;">
+        <img src="https://img.icons8.com/color/48/linkedin.png" alt="Share on LinkedIn"/>
+    </a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You" target="_blank" style="margin: 0 10px;">
+        <img src="https://img.icons8.com/color/48/facebook.png" alt="Share on Facebook"/>
+    </a>
+    <a href="https://twitter.com/intent/tweet?text=Check%20out%20which%20Simpsons%20character%20I%20got!%20&url=https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You" target="_blank" style="margin: 0 10px;">
+        <img src="https://img.icons8.com/color/48/twitter--v1.png" alt="Share on Twitter"/>
+    </a>
+</div>
+"""
 
 # Gradio app
 gr.Interface(
     fn=classify,
     inputs = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture"),
-    outputs=gr.Label(num_top_classes=3),
+    outputs=[
+        gr.Label(num_top_classes=3),
+        gr.HTML(value-share_html)
+    ],
     title="Which Simpsons Character Are You?",
     css=custom_css,
     description="Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting."
