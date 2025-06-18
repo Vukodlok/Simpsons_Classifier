@@ -45,17 +45,17 @@ def classify(image):
     input_tensor = transform(image).unsqueeze(0)
     with torch.no_grad():
         outputs = model(input_tensor)
-        probs = F.softmax(outputs.logits, dim=1)[0]
-    top_probs, top_indices = torch.topk(probs, 3)
-    results = {}
-
+    probs = torch.nn.functional.softmax(outputs.logits, dim=1)[0]
     # Return top 3 predictions with percentage values
-    for i in range(3):
-        label = id2label[top_indices[i].item()]
-        confidence = top_probs[i].item() * 100
-        results[label] = f'{confidence:.2f}%'
-
-    return results
+    top3 = torch.topk(probs, k=3)
+    result = {
+        "label": id2label[top3.indices[0].item()],
+        "confidences": [
+            {"label": id2label[top3.indices[i].item()], "confidence": top3.values[i].item()}
+            for i in range(3)
+        ]
+    }
+    return result
 
 # Gradio app
 gr.Interface(
