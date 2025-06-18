@@ -67,7 +67,7 @@ def classify(image):
 # Gradio app
 gr.Interface(
     fn=classify,
-    inputs=gr.Image(type="pil", label="Upload or Take a Picture"),
+    inputs=gr.Image(source="webcam", tool="editor", type="pil", label="Upload or Take a Picture"),
     outputs=gr.Label(num_top_classes=3),
     title="Which Simpsons Character Are You?"
 ).launch(share=True, server_name="0.0.0.0", server_port=7860)
