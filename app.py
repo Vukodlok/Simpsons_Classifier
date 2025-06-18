@@ -41,6 +41,9 @@ model.eval()
 
 # Classification function
 def classify(image):
+    if image is None:
+        return "No image provided", None
+    
     image = image.convert("RGB")
     input_tensor = transform(image).unsqueeze(0)
 
