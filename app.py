@@ -42,7 +42,8 @@ model.eval()
 # Classification function
 def classify(image):
     if image is None:
-        return "No image provided", None
+        print("No image provided.")
+        return {}
     
     image = image.convert("RGB")
     input_tensor = transform(image).unsqueeze(0)
@@ -59,8 +60,9 @@ def classify(image):
         label = id2label[top3.indices[i].item()]
         score = float(top3.values[i].item())
         confidences[label] = score
-            
-    return confidences
+
+    print(f'Returning: {confidences}')        
+    return dict(confidences)
 
 # Gradio app
 gr.Interface(
