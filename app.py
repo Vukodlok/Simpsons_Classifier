@@ -125,7 +125,7 @@ gr.Interface(
     inputs = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture"),
     outputs=[
         gr.Label(num_top_classes=3),
-        gr.HTML(value-share_html)
+        gr.HTML(value=share_html)
     ],
     title="Which Simpsons Character Are You?",
     css=custom_css,
