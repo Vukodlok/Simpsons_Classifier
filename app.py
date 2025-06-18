@@ -1,5 +1,5 @@
 import gradio as gr
-print("Gradio version:", gradio.__version__)
+print("Gradio version:", gr.__version__)
 from PIL import Image
 import torch
 import torch.nn.functional as F
