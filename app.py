@@ -54,10 +54,7 @@ def classify(image):
         score = float(top3.values[i].item())
         confidences.append({"label": label, "confidence": score})
             
-    return {
-        "label": confidences[0]["label"],
-        "confidences": confidences
-    }
+    return confidences[0]["label"], confidences
 
 # Gradio app
 gr.Interface(
