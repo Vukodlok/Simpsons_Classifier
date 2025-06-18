@@ -50,7 +50,7 @@ def classify(image):
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)[0]
     # Return top 3 predictions with confidence values
     top3 = torch.topk(probs, k=3)
-    
+
     confidences = {}
     for i in range(3):
         label = id2label[top3.indices[i].item()]
@@ -62,7 +62,7 @@ def classify(image):
 # Gradio app
 gr.Interface(
     fn=classify,
-    inputs=gr.Image(type="pil"),
+    inputs=gr.Image(source="upload", type="pil", label="Upload or Take a Picture"),
     outputs=gr.Label(num_top_classes=3),
     title="Which Simpsons Character Are You?"
 ).launch(share=True, server_name="0.0.0.0", server_port=7860)
