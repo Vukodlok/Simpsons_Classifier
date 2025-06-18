@@ -67,15 +67,20 @@ def classify(image):
 
 # Gradio css styling
 custom_css = """
-@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Freckle+Face&display=swap');
 
 body, .gradio-container {
     background-color: black !important;
     color: #fada00 !important;
-    font-family: "Luckiest Guy", "Comic Sans MS", cursive !important;
+    font-family: 'Freckle Face', cursive !important;
 }
 
-label, .output-class, .gr-button, .gr-label {
+h1, h2, h3, .gr-title, .gr-header, .gr-label {
+    color: #fada00 !important;
+    font-family: 'Freckle Face', cursive !important;
+}
+
+label, .output-class, .gr-label {
     color: #fada00 !important;
 }
 
@@ -84,14 +89,11 @@ label, .output-class, .gr-button, .gr-label {
     border: 2px solid #fada00 !important;
     color: #fada00 !important;
     font-weight: bold;
+    font-family: 'Freckle Face', cursive !important;
 }
 
 .gr-button:hover {
     background-color: #333 !important;
-}
-
-.gr-label {
-    color: #fada00 !important;
 }
 """
 
