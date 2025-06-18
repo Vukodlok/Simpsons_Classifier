@@ -48,14 +48,16 @@ def classify(image):
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)[0]
     # Return top 3 predictions with percentage values
     top3 = torch.topk(probs, k=3)
-    result = {
-        "label": id2label[top3.indices[0].item()],
-        "confidences": [
-            {"label": id2label[top3.indices[i].item()], "confidence": top3.values[i].item()}
-            for i in range(3)
-        ]
+    confidences = []
+    for i in range(3):
+        label = id2label[top3.indices[i].item()]
+        score = float(top3.values[i].item())
+        confidences.append({"label": label, "confidence": score})
+            
+    return {
+        "label": confidence[0]["label"],
+        "confidences": confidences
     }
-    return result
 
 # Gradio app
 gr.Interface(
