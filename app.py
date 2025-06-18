@@ -70,7 +70,8 @@ gr.Interface(
     fn=classify,
     inputs = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture"),
     outputs=gr.Label(num_top_classes=3),
-    title="Which Simpsons Character Are You?"
+    title="Which Simpsons Character Are You?",
+    description="Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting."
 ).launch(share=True, server_name="0.0.0.0", server_port=7860)
 
 
