@@ -65,12 +65,43 @@ def classify(image):
     print(f'Returning: {confidences}')        
     return dict(confidences)
 
+# Gradio css styling
+custom_css = """
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
+body, .gradio-container {
+    background-color: black !important;
+    color: #fada00 !important;
+    font-family: "Luckiest Guy", "Comic Sans MS", cursive !important;
+}
+
+label, .output-class, .gr-button, .gr-label {
+    color: #fada00 !important;
+}
+
+.gr-button {
+    background-color: #222 !important;
+    border: 2px solid #fada00 !important;
+    color: #fada00 !important;
+    font-weight: bold;
+}
+
+.gr-button:hover {
+    background-color: #333 !important;
+}
+
+.gr-label {
+    color: #fada00 !important;
+}
+"""
+
 # Gradio app
 gr.Interface(
     fn=classify,
     inputs = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture"),
     outputs=gr.Label(num_top_classes=3),
     title="Which Simpsons Character Are You?",
+    css=custom_css,
     description="Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting."
 ).launch(share=True, server_name="0.0.0.0", server_port=7860)
 
