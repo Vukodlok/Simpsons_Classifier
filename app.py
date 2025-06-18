@@ -72,30 +72,37 @@ custom_css = """
 body, .gradio-container {
     background-color: black !important;
     color: #fada00 !important;
-    font-family: 'Freckle Face', cursive !important;
 }
 
-h1, h2, h3, .gr-title, .gr-header, .gr-label {
+/* Title and Share link use Freckle Face */
+h1, .gr-header, .gr-title {
+    font-family: 'Freckle Face', cursive !important;
     color: #fada00 !important;
-    font-family: 'Freckle Face', cursive !important;
 }
 
+/* Drop/Upload text */
+.gr-image .upload-label {
+    font-family: 'Freckle Face', cursive !important;
+    color: #fada00 !important;
+}
+
+/* Keep other text default but yellow */
 label, .output-class, .gr-label {
     color: #fada00 !important;
 }
 
+/* Submit button */
 .gr-button {
-    background-color: #222 !important;
-    border: 2px solid #fada00 !important;
-    color: #fada00 !important;
+    background-color: #fada00 !important;
+    color: black !important;
     font-weight: bold;
-    font-family: 'Freckle Face', cursive !important;
 }
 
 .gr-button:hover {
-    background-color: #333 !important;
+    background-color: #ffe347 !important;
 }
 """
+
 
 # Gradio app
 gr.Interface(
