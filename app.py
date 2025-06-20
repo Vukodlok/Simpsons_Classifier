@@ -134,6 +134,20 @@ with gr.Blocks(css=custom_css) as demo:
         Click to Copy Share Link and Share Your Resuts!
         </button>
     </div>
+    <script>
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target.innerText.includes("Most matching with")) {
+                    document.getElementById("copy-container").style.display = "block";
+                }
+            });
+        });
+
+        const targetNode = document.querySelector('div.markdown.prose');
+        if (targetNode) {
+            observer.observe(targetNode, { childList: true, subtree: true });
+        }
+    </script>
     """
     )
 
