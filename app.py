@@ -126,6 +126,14 @@ with gr.Blocks(css=custom_css) as demo:
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
 
+    submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message])
+    clear_btn.click(
+        lambda: (None, None, gr.update(visible=False)),
+        inputs=[],
+        outputs=[image_input, output, share_message],
+        _js="document.getElementById('copy-container').style.display='none';"
+    )
+
     copy_html = gr.HTML(
     """
     <div id="copy-container" style="text-align: center; margin-top: 10px; display: none;">
@@ -149,22 +157,6 @@ with gr.Blocks(css=custom_css) as demo:
         }
     </script>
     """
-    )
-
-    # JS to show the copy button dynamically
-    gr.HTML("<script>function showCopyButton(){document.getElementById('copy-container').style.display = 'block';}</script>")
-
-    submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message]).then(
-        fn=None,
-        inputs=None,
-        outputs=None,
-        _js="showCopyButton"
-    )
-
-    clear_btn.click(
-        lambda: (None, None, gr.update(visible=False)),
-        inputs=[],
-        outputs=[image_input, output, share_message],
-    )
+    )    
 
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
