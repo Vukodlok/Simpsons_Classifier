@@ -122,22 +122,35 @@ with gr.Blocks(css=custom_css) as demo:
         "<h2 style='color: #fada00; font-family: Freckle Face, cursive;'>Click the button below to copy a link to share your results!</h2>",
         visible=False
     )
+
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
 
-    submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message])
-    clear_btn.click(lambda: (None, None, gr.update(visible=False)), inputs=[], outputs=[image_input, output, share_message])
-
-    copy_html = gr.HTML("""
-    <div style="text-align: center; margin-top: 10px;">
-    <button onclick="navigator.clipboard.writeText(window.location.href)" 
-            style="background-color: #fada00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
-        Click to Copy Share Link and Share Your Results!
-    </button>
+    copy_html = gr.HTML(
+    """
+    <div id="copy-container" style="text-align: center; margin-top: 10px; display: none;">
+        <button onclick="navigator.clipboard.writeText(window.location.href)" 
+                style="background-color: #fada00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
+        Click to Copy Share Link and Share Your Resuts!
+        </button>
     </div>
-    """)
+    """
+    )
 
+    # JS to show the copy button dynamically
+    gr.HTML("<script>function showCopyButton(){document.getElementById('copy-container').style.display = 'block';}</script>")
 
-    submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message])
+    submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message]).then(
+        fn=None,
+        inputs=None,
+        outputs=None,
+        _js="showCopyButton"
+    )
+
+    clear_btn.click(
+        lambda: (None, None, gr.update(visible=False)),
+        inputs=[],
+        outputs=[image_input, output, share_message],
+    )
 
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
