@@ -1,5 +1,4 @@
 import gradio as gr
-print("Gradio version:", gr.__version__)
 from PIL import Image
 import torch
 import torch.nn.functional as F
@@ -62,7 +61,7 @@ def classify(image):
         confidences[label] = score
 
     print(f'Returning: {confidences}')        
-    return dict(confidences)
+    return confidences, "<h2 style='color: #fada00; font-family: Freckle Face, cursive;'>Click the button below to copy a link to share your results!</h2>"
 
 # Gradio css styling
 custom_css = """
@@ -109,11 +108,14 @@ a.share-btn__copy-btn + span::before {
 }
 """
 
-# Launch Gradio app
+# Gradio app
 gr.Interface(
-    fn=classify,
+    fn=lambda img: (classify(img), "<h2 style='color: #fada00; font-family: Freckle Face, cursive;'>Click the button below to copy a link to share your results!</h2>"),
     inputs=gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture"),
-    outputs=gr.Label(num_top_classes=3),
+    outputs=[
+        gr.Label(num_top_classes=3),
+        gr.HTML(),
+    ],
     title="Which Simpsons Character Are You?",
     css=custom_css,
     description="Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting."
