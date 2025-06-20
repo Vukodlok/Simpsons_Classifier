@@ -123,6 +123,20 @@ with gr.Blocks(css=custom_css) as demo:
         visible=False
     )
     submit_btn = gr.Button("Submit")
+    clear_btn = gr.Button("Clear")
+
+    submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message])
+    clear_btn.click(lambda: (None, None, gr.update(visible=False)), inputs=[], outputs=[image_input, output, share_message])
+
+    copy_html = gr.HTML("""
+    <div style="text-align: center; margin-top: 10px;">
+    <button onclick="navigator.clipboard.writeText(window.location.href)" 
+            style="background-color: #fada00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
+        Click to Copy Share Link and Share Your Results!
+    </button>
+    </div>
+    """)
+
 
     submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message])
 
