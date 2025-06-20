@@ -98,14 +98,16 @@ label, .output-class, .gr-label {
 }
 
 /* Change the 'share link' section text */
-a.share-btn__copy-btn + span {
-    color: #fada00 !important;
-    font-family: 'Freckle Face', cursive !important;
-    font-size: 1.1em !important;
+a.share-btn__copy-btn::before {
+    content: "Copy this link to share your results!";
+    color: black !important;
+    font-weight: bold;
+    font-family: 'Freckle Face', cursive;
+    font-size: 1em;
 }
 
-a.share-btn__copy-btn + span::before {
-    content: "Copy this link to share your results! ";
+a.share-btn__copy-btn span {
+    display: none;
 }
 """
 
