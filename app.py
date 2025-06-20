@@ -43,7 +43,7 @@ model.eval()
 def classify(image):
     if image is None:
         print("No image provided.")
-        return {}, gr.update(visible=False)
+        return {}, gr.update(value="", visible=False)
     
     image = image.convert("RGB")
     input_tensor = transform(image).unsqueeze(0)
@@ -59,6 +59,9 @@ def classify(image):
         label = id2label[top3.indices[i].item()]
         score = float(top3.values[i].item())
         confidences[label] = score
+
+    top_label = list(confidences.keys())[0]
+    message = f"Most matching with **{top_label.replace('_', ' ').title()}**!"
 
     print(f'Returning: {confidences}')        
     return confidences, gr.update(value=message, visible=True)
