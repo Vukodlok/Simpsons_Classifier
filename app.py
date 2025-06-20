@@ -115,7 +115,10 @@ a.share-btn__copy-btn span {
 gr.Interface(
     fn=classify,
     inputs=gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture"),
-    outputs=gr.Label(num_top_classes=3),
+    outputs=[
+    gr.HTML(value='<p style="color: #fada00; font-family: Freckle Face, cursive; font-size: 1.2em; text-align: center;">Copy this link to share your results!</p>'),
+    gr.Label(num_top_classes=3)
+    ],
     title="Which Simpsons Character Are You?",
     css=custom_css,
     description="Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting."
