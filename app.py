@@ -61,7 +61,7 @@ def classify(image):
         confidences[label] = score
 
     print(f'Returning: {confidences}')        
-    return confidences
+    return confidences, gr.update(value=message, visible=True)
 
 # Gradio css styling
 custom_css = """
