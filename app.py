@@ -61,7 +61,7 @@ def classify(image):
         confidences[label] = score
 
     top_label = list(confidences.keys())[0]
-    message = f"Most matching with **{top_label.replace('_', ' ').title()}**!"
+    message = f"You most match with **{top_label.replace('_', ' ').title()}**!"
 
     print(f'Returning: {confidences}')        
     return confidences, gr.update(value=message, visible=True)
@@ -99,7 +99,6 @@ label, .output-class, .gr-label {
     background-color: #ffe347 !important;
 }
 
-/* Change the 'share link' section text */
 a.share-btn__copy-btn + span {
     color: #fada00 !important;
     font-family: 'Freckle Face', cursive !important;
@@ -127,36 +126,37 @@ with gr.Blocks(css=custom_css) as demo:
     clear_btn = gr.Button("Clear")
 
     submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message])
-    clear_btn.click(
-        lambda: (None, None, gr.update(visible=False)),
-        inputs=[],
-        outputs=[image_input, output, share_message],
-        _js="document.getElementById('copy-container').style.display='none';"
-    )
+    clear_btn.click(lambda: (None, None, gr.update(visible=False)), inputs=[], outputs=[image_input, output, share_message])
 
-    copy_html = gr.HTML(
-    """
-    <div id="copy-container" style="text-align: center; margin-top: 10px; display: none;">
-        <button onclick="navigator.clipboard.writeText(window.location.href)" 
-                style="background-color: #fada00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
-        Click to Copy Share Link and Share Your Resuts!
-        </button>
-    </div>
-    <script>
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.target.innerText.includes("Most matching with")) {
-                    document.getElementById("copy-container").style.display = "block";
+    gr.HTML(
+        """
+        <div id="copy-container" style="text-align: center; margin-top: 10px; display: none;">
+            <button onclick="navigator.clipboard.writeText(window.location.href)" 
+                    style="background-color: #fada00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
+            Click to Copy Share Link and Share Your Results!
+            </button>
+        </div>
+        <script>
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.target.innerText.includes("Most matching with")) {
+                        document.getElementById("copy-container").style.display = "block";
+                    }
+                });
+            });
+
+            const targetNode = document.querySelector('div.markdown.prose');
+            if (targetNode) {
+                observer.observe(targetNode, { childList: true, subtree: true });
+            }
+
+            document.addEventListener("click", function(e) {
+                if (e.target && e.target.innerText === "Clear") {
+                    document.getElementById("copy-container").style.display = "none";
                 }
             });
-        });
-
-        const targetNode = document.querySelector('div.markdown.prose');
-        if (targetNode) {
-            observer.observe(targetNode, { childList: true, subtree: true });
-        }
-    </script>
-    """
-    )    
+        </script>
+        """
+    )
 
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
