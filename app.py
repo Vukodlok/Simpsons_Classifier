@@ -43,7 +43,7 @@ model.eval()
 def classify(image):
     if image is None:
         print("No image provided.")
-        return {}
+        return {}, gr.update(visible=False)
     
     image = image.convert("RGB")
     input_tensor = transform(image).unsqueeze(0)
@@ -51,7 +51,7 @@ def classify(image):
     with torch.no_grad():
         outputs = model(input_tensor)
 
-    probs = torch.nn.functional.softmax(outputs.logits, dim=1)[0]
+    probs = F.softmax(outputs.logits, dim=1)[0]
     top3 = torch.topk(probs, k=3)
 
     confidences = {}
@@ -61,7 +61,7 @@ def classify(image):
         confidences[label] = score
 
     print(f'Returning: {confidences}')        
-    return confidences, "<h2 style='color: #fada00; font-family: Freckle Face, cursive;'>Click the button below to copy a link to share your results!</h2>"
+    return confidences, gr.update(visible=True)
 
 # Gradio css styling
 custom_css = """
@@ -109,14 +109,18 @@ a.share-btn__copy-btn + span::before {
 """
 
 # Gradio app
-gr.Interface(
-    fn=lambda img: (classify(img), "<h2 style='color: #fada00; font-family: Freckle Face, cursive;'>Click the button below to copy a link to share your results!</h2>"),
-    inputs=gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture"),
-    outputs=[
-        gr.Label(num_top_classes=3),
-        gr.HTML(),
-    ],
-    title="Which Simpsons Character Are You?",
-    css=custom_css,
-    description="Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting."
-).launch(share=True, server_name="0.0.0.0", server_port=7860)
+with gr.Blocks(css=custom_css) as demo:
+    gr.Markdown("# Which Simpsons Character Are You?")
+    gr.Markdown("Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting.")
+
+    image_input = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture")
+    output = gr.Label(num_top_classes=3)
+    share_message = gr.Markdown(
+        "<h2 style='color: #fada00; font-family: Freckle Face, cursive;'>Click the button below to copy a link to share your results!</h2>",
+        visible=False
+    )
+    submit_btn = gr.Button("Submit")
+
+    submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message])
+
+demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
