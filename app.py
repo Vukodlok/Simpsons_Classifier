@@ -124,8 +124,6 @@ with gr.Blocks(css=custom_css) as demo:
         with gr.Column():
             label_output = gr.Label(num_top_classes=3)
 
-    gr.HTML(value=share_html)
-
     gr.Markdown("Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting.")
 
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
