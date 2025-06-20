@@ -98,33 +98,23 @@ label, .output-class, .gr-label {
 }
 
 /* Change the 'share link' section text */
-a.share-btn__copy-btn::before {
-    content: "Copy this link to share your results!";
-    color: black !important;
-    font-weight: bold;
-    font-family: 'Freckle Face', cursive;
-    font-size: 1em;
+a.share-btn__copy-btn + span {
+    color: #fada00 !important;
+    font-family: 'Freckle Face', cursive !important;
+    font-size: 1.1em !important;
 }
 
-a.share-btn__copy-btn span {
-    display: none;
+a.share-btn__copy-btn + span::before {
+    content: "Copy this link to share your results! ";
 }
 """
 
 # Launch Gradio app
-with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("## Which Simpsons Character Are You?", elem_classes="gr-title")
-
-    with gr.Row():
-        with gr.Column():
-            image_input = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture")
-
-            gr.HTML('<p style="color: #fada00; font-family: Freckle Face, cursive; font-size: 1.2em; text-align: center;">Copy this link to share your results!</p>')
-
-        with gr.Column():
-            label_output = gr.Label(num_top_classes=3)
-
-    gr.Markdown("Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting.")
-
-demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
-
+gr.Interface(
+    fn=classify,
+    inputs=gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture"),
+    outputs=gr.Label(num_top_classes=3),
+    title="Which Simpsons Character Are You?",
+    css=custom_css,
+    description="Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting."
+).launch(share=True, server_name="0.0.0.0", server_port=7860)
