@@ -66,7 +66,7 @@ def classify_with_copy(image):
     
     if confidences:
         match_string = "|".join([f"{label},{round(score, 4)}" for label, score in confidences.items()])
-        url = f"?match={match_string}"
+        url = f"{gr.inputs.get_window_location()}?match={match_string}"
     else:
         url = ""
 
@@ -166,8 +166,8 @@ with gr.Blocks(css=custom_css) as demo:
     window.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);
         const query = params.toString();
-        const inputBox = document.querySelector('textarea[aria-label="Query String"]');
-        if (inputBox) {
+        const inputBox = document.querySelector('textarea[aria-label="__query_str"]');
+        if (inputBox && query.length > 0) {
             inputBox.value = query;
             inputBox.dispatchEvent(new Event("input", { bubbles: true }));
         }
@@ -175,7 +175,7 @@ with gr.Blocks(css=custom_css) as demo:
     </script>
     """)
 
-    query_string_box = gr.Textbox(value="", visible=False, label="Query String")
+    query_string_box = gr.Textbox(value="", visible=False, label="__query_str")
 
     image_input = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture", height=400)
     output = gr.Label(num_top_classes=3)
@@ -187,6 +187,23 @@ with gr.Blocks(css=custom_css) as demo:
     copy_button = gr.Button("Click to Copy Share Link and Share Your Results!", visible=False, elem_id="copy-share-btn")
 
     share_link = gr.Textbox(label="Shareable Link", visible=False, interactive=True, show_copy_button=True)
+
+    gr.HTML("""
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const linkBox = document.querySelector('textarea[aria-label="__query_str"]');
+    if (linkBox) {
+        linkBox.addEventListener('input', () => {
+        const val = linkBox.value;
+        if (val.startsWith('?')) {
+            linkBox.value = window.location.origin + window.location.pathname + val;
+        }
+        });
+    }
+    });
+    </script>
+    """)
+
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
 
