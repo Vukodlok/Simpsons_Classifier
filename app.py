@@ -139,7 +139,7 @@ with gr.Blocks(css=custom_css) as demo:
         <script>
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
-                    if (mutation.target.innerText.includes("Most matching with")) {
+                    if (mutation.target.innerText.includes("You most match with")) {
                         document.getElementById("copy-container").style.display = "block";
                     }
                 });
