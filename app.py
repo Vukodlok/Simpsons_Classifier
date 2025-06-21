@@ -147,7 +147,7 @@ with gr.Blocks(css=custom_css) as demo:
     submit_btn.click(
         fn=classify_with_copy,
         inputs=image_input,
-        outputs=[output, share_message, share_html, match_result]
+        outputs=[output, share_message, copy_button, match_result]
     )
 
     clear_btn.click(
