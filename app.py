@@ -66,7 +66,9 @@ def classify_with_copy(image):
     
     if confidences:
         match_string = "|".join([f"{label},{round(score, 4)}" for label, score in confidences.items()])
-        url = f"{gr.inputs.get_window_location()}?match={match_string}"
+        base_url = "https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You"
+        url = f"{base_url}?match={match_string}"
+
     else:
         url = ""
 
@@ -187,22 +189,6 @@ with gr.Blocks(css=custom_css) as demo:
     copy_button = gr.Button("Click to Copy Share Link and Share Your Results!", visible=False, elem_id="copy-share-btn")
 
     share_link = gr.Textbox(label="Shareable Link", visible=False, interactive=True, show_copy_button=True)
-
-    gr.HTML("""
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const linkBox = document.querySelector('textarea[aria-label="__query_str"]');
-    if (linkBox) {
-        linkBox.addEventListener('input', () => {
-        const val = linkBox.value;
-        if (val.startsWith('?')) {
-            linkBox.value = window.location.origin + window.location.pathname + val;
-        }
-        });
-    }
-    });
-    </script>
-    """)
 
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
