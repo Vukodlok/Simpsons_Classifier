@@ -130,14 +130,28 @@ with gr.Blocks(css=custom_css) as demo:
     copy_button = gr.HTML(
         """
         <div id="copy-container" style="text-align: center; margin-top: 10px;">
-            <button onclick="navigator.clipboard.writeText(window.location.href)" 
+            <button onclick="copyShareLink()" 
                     style="background-color: #fada00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
-            Click to Copy Share Link and Share Your Results!
+                Click to Copy Share Link and Share Your Results!
             </button>
         </div>
+        <script>
+            function copyShareLink() {
+                let topMatch = window.topMatchCharacter;
+                let baseUrl = window.location.origin + window.location.pathname;
+                let shareUrl = baseUrl;
+                if (topMatch) {
+                    shareUrl += '?match=' + encodeURIComponent(topMatch);
+                }
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert("Link copied to clipboard!");
+                });
+            }
+        </script>
         """,
         visible=False
     )
+
 
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
@@ -148,6 +162,13 @@ with gr.Blocks(css=custom_css) as demo:
         fn=classify_with_copy,
         inputs=image_input,
         outputs=[output, share_message, copy_button, match_result]
+    )
+
+    demo.load(
+    lambda match: f"<script>window.topMatchCharacter = '{match}';</script>",
+    inputs=match_result,
+    outputs=[],
+    every=False
     )
 
     clear_btn.click(
