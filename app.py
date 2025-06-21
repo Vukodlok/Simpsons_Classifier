@@ -67,13 +67,18 @@ def classify(image):
 
 def classify_with_copy(image):
     confidences, message_update = classify(image)
-    top_label = list(confidences.keys())[0] if confidences else None
-    if top_label:
-        url = f"https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You?match={top_label}"
+    
+    if confidences:
+        match_string = "|".join([
+            f"{label},{round(score, 4)}" for label, score in confidences.items()
+        ])
+        url = f"https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You?match={match_string}"
     else:
         url = ""
 
-    return (confidences, message_update, gr.update(visible=True), top_label, gr.update(value=url, visible=True))
+    top_label = list(confidences.keys())[0] if confidences else None
+
+    return confidences, message_update, gr.update(visible=True), top_label, gr.update(value=url, visible=True)
 
 # Gradio css styling
 custom_css = """
@@ -161,5 +166,43 @@ with gr.Blocks(css=custom_css) as demo:
         outputs=[image_input, output, share_message, match_result]
     )
 
+    # Load shared results from url
+    def load_from_query():
+    import urllib.parse, os
+
+    # Get URL (in HF Spaces, use os.environ or js from Pyodide)
+    try:
+        from pyodide import js
+        query_string = js.window.location.search[1:]  # remove "?"
+    except:
+        query_string = os.getenv("QUERY_STRING", "")
+
+    params = dict(urllib.parse.parse_qsl(query_string))
+    match = params.get("match")
+    if not match:
+        return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
+
+    items = match.split("|")
+    top3 = {}
+    for item in items:
+        try:
+            label, score = item.split(",")
+            top3[label] = float(score)
+        except:
+            continue
+
+    if not top3:
+        return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
+
+    top_label = list(top3.keys())[0]
+    message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong style='color:#fada00;'>{top_label.replace('_', ' ').title()}</strong>!</div>"
+
+    return top3, gr.update(value=message, visible=True), gr.update(visible=True), top_label, gr.update(value="", visible=False)
+
+demo.load(
+    fn=load_from_query,
+    inputs=[],
+    outputs=[output, share_message, copy_button, match_result, share_link]
+)
+
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
-#test
