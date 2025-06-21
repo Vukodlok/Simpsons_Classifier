@@ -136,7 +136,7 @@ a.share-btn__copy-btn + span::before {
 
 # Gradio app
 with gr.Blocks(css=custom_css) as demo:
-    dummy_input = gr.Textbox(visible=False)
+    dummy_input = gr.Textbox(label="dummy_input", visible=False)
     gr.Markdown("# Which Simpsons Character Are You?")
     gr.Markdown("Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting.")
 
@@ -180,7 +180,7 @@ with gr.Blocks(css=custom_css) as demo:
     )
 
     # Load shared results from url
-    def load_from_query():
+    def load_from_query(dummy_value):
         import urllib.parse, os
 
         # Get URL (in HF Spaces, use os.environ or js from Pyodide)
