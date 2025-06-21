@@ -66,6 +66,10 @@ def classify(image):
     print(f'Returning: {confidences}')        
     return confidences, gr.update(value=message, visible=True)
 
+def classify_with_copy(image):
+    confidences, message_update = classify(image)
+    return confidences, message_update, gr.update(visible=True)
+
 # Gradio css styling
 custom_css = """
 @import url('https://fonts.googleapis.com/css2?family=Freckle+Face&display=swap');
@@ -122,41 +126,31 @@ with gr.Blocks(css=custom_css) as demo:
         visible=False
     )
 
-    submit_btn = gr.Button("Submit")
-    clear_btn = gr.Button("Clear")
-
-    submit_btn.click(fn=classify, inputs=image_input, outputs=[output, share_message])
-    clear_btn.click(lambda: (None, None, gr.update(visible=False)), inputs=[], outputs=[image_input, output, share_message])
-
-    gr.HTML(
+    copy_button = gr.HTML(
         """
-        <div id="copy-container" style="text-align: center; margin-top: 10px; display: none;">
+        <div id="copy-container" style="text-align: center; margin-top: 10px;">
             <button onclick="navigator.clipboard.writeText(window.location.href)" 
                     style="background-color: #fada00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
             Click to Copy Share Link and Share Your Results!
             </button>
         </div>
-        <script>
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.target.innerText.includes("You most match with")) {
-                        document.getElementById("copy-container").style.display = "block";
-                    }
-                });
-            });
+        """,
+        visible=False
+    )
 
-            const targetNode = document.querySelector('div.markdown.prose');
-            if (targetNode) {
-                observer.observe(targetNode, { childList: true, subtree: true });
-            }
+    submit_btn = gr.Button("Submit")
+    clear_btn = gr.Button("Clear")
 
-            document.addEventListener("click", function(e) {
-                if (e.target && e.target.innerText === "Clear") {
-                    document.getElementById("copy-container").style.display = "none";
-                }
-            });
-        </script>
-        """
+    submit_btn.click(
+        fn=classify_with_copy,
+        inputs=image_input,
+        outputs=[output, share_message, copy_button]
+    )
+
+    clear_btn.click(
+        lambda: (None, None, gr.update(visible=False)),
+        inputs=[],
+        outputs=[image_input, output, share_message, copy_button]
     )
 
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
