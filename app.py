@@ -214,7 +214,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     demo.load(
         fn=load_from_query,
-        inputs=[dummy_input],
+        inputs=[gr.Textbox(value="trigger", visible=False)],
         outputs=[output, share_message, copy_button, match_result, share_link]
     )
 
