@@ -180,18 +180,25 @@ with gr.Blocks(css=custom_css) as demo:
     )
 
     # Load shared results from url
-    def load_from_query(dummy_value):
+    def load_from_query(dummy_value=None):
         import urllib.parse, os
+
+        print("load_from_query() triggered")
 
         # Get URL (in HF Spaces, use os.environ or js from Pyodide)
         try:
             from pyodide import js
             query_string = js.window.location.search[1:]  # remove "?"
-        except:
+            print(f"Query string from pyodide: {query_string}")
+        except Exception as e:
+            print(f"Failed to get pyodide query: {e}")
             query_string = os.getenv("QUERY_STRING", "")
+            print(f"Query string from os: {query_string}")
 
         params = dict(urllib.parse.parse_qsl(query_string))
+        print(f"Parsed params: {params}")
         match = params.get("match")
+        print(f"Match param: {match}")
         if not match:
             return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
 
@@ -201,7 +208,8 @@ with gr.Blocks(css=custom_css) as demo:
             try:
                 label, score = item.split(",")
                 top3[label] = float(score)
-            except:
+            except Exception as e:
+                print(f"Error parsing item '{item}': {e}")
                 continue
 
         if not top3:
@@ -209,6 +217,7 @@ with gr.Blocks(css=custom_css) as demo:
 
         top_label = list(top3.keys())[0]
         message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong style='color:#fada00;'>{top_label.replace('_', ' ').title()}</strong>!</div>"
+        print(f"✅ Parsed top3: {top3}")
 
         return top3, gr.update(value=message, visible=True), gr.update(visible=True), top_label, gr.update(value="", visible=False)
 
