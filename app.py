@@ -54,11 +54,7 @@ def classify(image):
     probs = F.softmax(outputs.logits, dim=1)[0]
     top3 = torch.topk(probs, k=3)
 
-    confidences = {}
-    for i in range(3):
-        label = id2label[top3.indices[i].item()]
-        score = float(top3.values[i].item())
-        confidences[label] = score
+    confidences = {id2label[top3.indices[i].item()]: float(top3.values[i]) for i in range(3)}
 
     top_label = list(confidences.keys())[0]
     message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong style='color:#fada00;'>{top_label.replace('_', ' ').title()}</strong>!</div>"
@@ -69,16 +65,40 @@ def classify_with_copy(image):
     confidences, message_update = classify(image)
     
     if confidences:
-        match_string = "|".join([
-            f"{label},{round(score, 4)}" for label, score in confidences.items()
-        ])
-        url = f"https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You?match={match_string}"
+        match_string = "|".join([f"{label},{round(score, 4)}" for label, score in confidences.items()])
+        url = f"?match={match_string}"
     else:
         url = ""
 
     top_label = list(confidences.keys())[0] if confidences else None
 
     return confidences, message_update, gr.update(visible=True), top_label, gr.update(value=url, visible=True)
+
+# Load shared results from url
+def load_from_query(query_string):
+    import urllib.parse
+
+    params = dict(urllib.parse.parse_qsl(query_string))
+    match = params.get("match")
+    if not match:
+        return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
+
+    items = match.split("|")
+    top3 = {}
+    for item in items:
+        try:
+            label, score = item.split(",")
+            top3[label] = float(score)
+        except:
+            continue
+
+    if not top3:
+        return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
+
+    top_label = list(top3.keys())[0]
+    message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong style='color:#fada00;'>{top_label.replace('_', ' ').title()}</strong>!</div>"
+
+    return top3, gr.update(value=message, visible=True), gr.update(visible=True), top_label, gr.update(value="", visible=False)
 
 # Gradio css styling
 custom_css = """
@@ -140,17 +160,22 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("# Which Simpsons Character Are You?")
     gr.Markdown("Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting.")
 
+    # Add JS block to pull query string
     gr.Markdown("""
     <script>
-        window.addEventListener("DOMContentLoaded", () => {
-            const dummy = document.querySelector('textarea[aria-label="dummy_input"]');
-            if (dummy) {
-                dummy.value = "trigger";
-                dummy.dispatchEvent(new Event("input", { bubbles: true }));
-            }
-        });
+    window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const query = params.toString();
+        const inputBox = document.querySelector('textarea[aria-label="Query String"]');
+        if (inputBox) {
+            inputBox.value = query;
+            inputBox.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+    });
     </script>
     """)
+
+    query_string_box = gr.Textbox(value="", visible=False, label="Query String")
 
     image_input = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture", height=400)
     output = gr.Label(num_top_classes=3)
@@ -175,55 +200,12 @@ with gr.Blocks(css=custom_css) as demo:
 
     clear_btn.click(
         lambda: (None, None, gr.update(visible=False), None),
-        inputs=[],
         outputs=[image_input, output, share_message, match_result]
     )
 
-    # Load shared results from url
-    def load_from_query(dummy_value=None):
-        import urllib.parse, os
-
-        print("load_from_query() triggered")
-
-        # Get URL (in HF Spaces, use os.environ or js from Pyodide)
-        try:
-            from pyodide import js
-            query_string = js.window.location.search[1:]  # remove "?"
-            print(f"Query string from pyodide: {query_string}")
-        except Exception as e:
-            print(f"Failed to get pyodide query: {e}")
-            query_string = os.getenv("QUERY_STRING", "")
-            print(f"Query string from os: {query_string}")
-
-        params = dict(urllib.parse.parse_qsl(query_string))
-        print(f"Parsed params: {params}")
-        match = params.get("match")
-        print(f"Match param: {match}")
-        if not match:
-            return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
-
-        items = match.split("|")
-        top3 = {}
-        for item in items:
-            try:
-                label, score = item.split(",")
-                top3[label] = float(score)
-            except Exception as e:
-                print(f"Error parsing item '{item}': {e}")
-                continue
-
-        if not top3:
-            return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
-
-        top_label = list(top3.keys())[0]
-        message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong style='color:#fada00;'>{top_label.replace('_', ' ').title()}</strong>!</div>"
-        print(f"✅ Parsed top3: {top3}")
-
-        return top3, gr.update(value=message, visible=True), gr.update(visible=True), top_label, gr.update(value="", visible=False)
-
     demo.load(
         fn=load_from_query,
-        inputs=[gr.Textbox(value="trigger", visible=False)],
+        inputs=[query_string_box],
         outputs=[output, share_message, copy_button, match_result, share_link]
     )
 
