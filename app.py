@@ -42,7 +42,6 @@ model.eval()
 # Classification function
 def classify(image):
     if image is None:
-        print("No image provided.")
         return {}, gr.update(value="", visible=False)
     
     image = image.convert("RGB")
@@ -60,47 +59,6 @@ def classify(image):
     message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong style='color:#fada00;'>{top_label.replace('_', ' ').title()}</strong>!</div>"
        
     return confidences, gr.update(value=message, visible=True)
-
-def classify_with_copy(image):
-    confidences, message_update = classify(image)
-    
-    if confidences:
-        match_string = "|".join([f"{label},{round(score, 4)}" for label, score in confidences.items()])
-        base_url = "https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You"
-        url = f"{base_url}?match={match_string}"
-
-    else:
-        url = ""
-
-    top_label = list(confidences.keys())[0] if confidences else None
-
-    return confidences, message_update, gr.update(visible=True), top_label, gr.update(value=url, visible=True)
-
-# Load shared results from url
-def load_from_query(query_string):
-    import urllib.parse
-
-    params = dict(urllib.parse.parse_qsl(query_string))
-    match = params.get("match")
-    if not match:
-        return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
-
-    items = match.split("|")
-    top3 = {}
-    for item in items:
-        try:
-            label, score = item.split(",")
-            top3[label] = float(score)
-        except:
-            continue
-
-    if not top3:
-        return {}, gr.update(visible=False), gr.update(visible=False), None, gr.update(visible=False)
-
-    top_label = list(top3.keys())[0]
-    message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong style='color:#fada00;'>{top_label.replace('_', ' ').title()}</strong>!</div>"
-
-    return top3, gr.update(value=message, visible=True), gr.update(visible=True), top_label, gr.update(value="", visible=False)
 
 # Gradio css styling
 custom_css = """
@@ -134,82 +92,29 @@ label, .output-class, .gr-label {
 .gr-button:hover {
     background-color: #ffe347 !important;
 }
-
-a.share-btn__copy-btn + span {
-    color: #fada00 !important;
-    font-family: 'Freckle Face', cursive !important;
-    font-size: 1.1em !important;
-}
-
-a.share-btn__copy-btn + span::before {
-    content: "Copy this link to share your results! ";
-}
-
-#copy-share-btn button {
-    background-color: #fada00 !important;
-    color: black !important;
-    font-weight: bold !important;
-    padding: 10px 20px !important;
-    border: none !important;
-    border-radius: 8px !important;
-    cursor: pointer !important;
-}
 """
 
 # Gradio app
 with gr.Blocks(css=custom_css) as demo:
-    dummy_input = gr.Textbox(label="dummy_input", visible=False)
     gr.Markdown("# Which Simpsons Character Are You?")
     gr.Markdown("Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting.")
 
-    # Add JS block to pull query string
-    gr.Markdown("""
-    <script>
-    window.addEventListener("DOMContentLoaded", () => {
-        const params = new URLSearchParams(window.location.search);
-        const query = params.toString();
-        const inputBox = document.querySelector('textarea[aria-label="__query_str"]');
-        if (inputBox && query.length > 0) {
-            inputBox.value = query;
-            inputBox.dispatchEvent(new Event("input", { bubbles: true }));
-        }
-    });
-    </script>
-    """)
-
-    query_string_box = gr.Textbox(value="", visible=False, label="__query_str")
-
     image_input = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture", height=400)
     output = gr.Label(num_top_classes=3)
-    share_message = gr.Markdown(
-        "<h2 style='color: #fada00; font-family: Freckle Face, cursive;'>Click the button below to copy a link to share your results!</h2>",
-        visible=False
-    )
-
-    copy_button = gr.Button("Click to Copy Share Link and Share Your Results!", visible=False, elem_id="copy-share-btn")
-
-    share_link = gr.Textbox(label="Shareable Link", visible=False, interactive=True, show_copy_button=True)
+    result_message = gr.Markdown(visible=False)
 
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
 
-    match_result = gr.State()
-
     submit_btn.click(
-        fn=classify_with_copy,
+        fn=classify,
         inputs=image_input,
-        outputs=[output, share_message, copy_button, match_result, share_link]
+        outputs=[output, result_message]
     )
 
     clear_btn.click(
-        lambda: (None, None, gr.update(visible=False), None),
-        outputs=[image_input, output, share_message, match_result]
-    )
-
-    demo.load(
-        fn=load_from_query,
-        inputs=[query_string_box],
-        outputs=[output, share_message, copy_button, match_result, share_link]
+        lambda: (None, gr.update(value="", visible=False)),
+        outputs=[image_input, result_message]
     )
 
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
