@@ -143,7 +143,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     copy_button = gr.Button("Click to Copy Share Link and Share Your Results!", visible=False, elem_id="copy-share-btn")
 
-    share_link = gr.Textbox(label="Shareable Link", visible=False, interactive=False)
+    share_link = gr.Textbox(label="Shareable Link", visible=False, interactive=True, show_copy_button=True)
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
 
@@ -153,13 +153,6 @@ with gr.Blocks(css=custom_css) as demo:
         fn=classify_with_copy,
         inputs=image_input,
         outputs=[output, share_message, copy_button, match_result, share_link]
-    )
-
-    copy_button.click(
-        None,
-        inputs=share_link,
-        outputs=[],
-        _js="navigator.clipboard.writeText"
     )
 
     clear_btn.click(
