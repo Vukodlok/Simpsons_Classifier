@@ -136,8 +136,21 @@ a.share-btn__copy-btn + span::before {
 
 # Gradio app
 with gr.Blocks(css=custom_css) as demo:
+    dummy_input = gr.Textbox(visible=False)
     gr.Markdown("# Which Simpsons Character Are You?")
     gr.Markdown("Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting.")
+
+    gr.Markdown("""
+    <script>
+        window.addEventListener("DOMContentLoaded", () => {
+            const dummy = document.querySelector('textarea[aria-label="dummy_input"]');
+            if (dummy) {
+                dummy.value = "trigger";
+                dummy.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+        });
+    </script>
+    """)
 
     image_input = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture", height=400)
     output = gr.Label(num_top_classes=3)
@@ -201,7 +214,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     demo.load(
         fn=load_from_query,
-        inputs=[],
+        inputs=[dummy_input],
         outputs=[output, share_message, copy_button, match_result, share_link]
     )
 
