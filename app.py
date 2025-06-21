@@ -62,15 +62,18 @@ def classify(image):
 
     top_label = list(confidences.keys())[0]
     message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong style='color:#fada00;'>{top_label.replace('_', ' ').title()}</strong>!</div>"
-
-    print(f'Returning: {confidences}')        
+       
     return confidences, gr.update(value=message, visible=True)
 
 def classify_with_copy(image):
     confidences, message_update = classify(image)
     top_label = list(confidences.keys())[0] if confidences else None
-    js_snippet = f"<script>window.topMatchCharacter = '{top_label}';</script>" if top_label else ""
-    return confidences, message_update, gr.update(visible=True), top_label, gr.update(value=js_snippet)
+    if top_label:
+        url = f"https://huggingface.co/spaces/Vukodlok/Which_Simpsons_Character_Are_You?match={top_label}"
+    else:
+        url = ""
+
+    return (confidences, message_update, gr.update(visible=True), top_label, gr.update(value=url, visible=True))
 
 # Gradio css styling
 custom_css = """
@@ -114,6 +117,16 @@ a.share-btn__copy-btn + span {
 a.share-btn__copy-btn + span::before {
     content: "Copy this link to share your results! ";
 }
+
+#copy-share-btn button {
+    background-color: #fada00 !important;
+    color: black !important;
+    font-weight: bold !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+}
 """
 
 # Gradio app
@@ -128,32 +141,9 @@ with gr.Blocks(css=custom_css) as demo:
         visible=False
     )
 
-    copy_button = gr.HTML(
-        """
-        <div id="copy-container" style="text-align: center; margin-top: 10px;">
-            <button onclick="copyShareLink()" 
-                    style="background-color: #fada00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
-                Click to Copy Share Link and Share Your Results!
-            </button>
-        </div>
-        <script>
-            function copyShareLink() {
-                let topMatch = window.topMatchCharacter;
-                let baseUrl = window.location.origin + window.location.pathname;
-                let shareUrl = baseUrl;
-                if (topMatch) {
-                    shareUrl += '?match=' + encodeURIComponent(topMatch);
-                }
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert("Link copied to clipboard!");
-                });
-            }
-        </script>
-        """,
-        visible=False
-    )
+    copy_button = gr.Button("Click to Copy Share Link and Share Your Results!", visible=False, elem_id="copy-share-btn")
 
-    js_inject = gr.HTML("", visible=False)
+    share_link = gr.Textbox(label="Shareable Link", visible=False, interactive=False)
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
 
@@ -162,13 +152,14 @@ with gr.Blocks(css=custom_css) as demo:
     submit_btn.click(
         fn=classify_with_copy,
         inputs=image_input,
-        outputs=[output, share_message, copy_button, match_result, js_inject]
+        outputs=[output, share_message, copy_button, match_result, share_link]
     )
 
-    demo.load(
-    lambda match: f"<script>window.topMatchCharacter = '{match}';</script>",
-    inputs=match_result,
-    outputs=js_inject
+    copy_button.click(
+        None,
+        inputs=share_link,
+        outputs=[],
+        _js="navigator.clipboard.writeText"
     )
 
     clear_btn.click(
