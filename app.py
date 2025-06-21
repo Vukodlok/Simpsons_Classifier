@@ -68,7 +68,8 @@ def classify(image):
 
 def classify_with_copy(image):
     confidences, message_update = classify(image)
-    return confidences, message_update, gr.update(visible=True)
+    top_label = list(confidences.keys())[0] if confidences else None
+    return confidences, message_update, gr.update(visible=True), top_label
 
 # Gradio css styling
 custom_css = """
@@ -141,16 +142,18 @@ with gr.Blocks(css=custom_css) as demo:
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
 
+    match_result = gr.State()
+
     submit_btn.click(
         fn=classify_with_copy,
         inputs=image_input,
-        outputs=[output, share_message, copy_button]
+        outputs=[output, share_message, share_html, match_result]
     )
 
     clear_btn.click(
-        lambda: (None, None, gr.update(visible=False), gr.update(visible=False)),
+        lambda: (None, None, gr.update(visible=False), None),
         inputs=[],
-        outputs=[image_input, output, share_message, copy_button]
+        outputs=[image_input, output, share_message, match_result]
     )
 
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
