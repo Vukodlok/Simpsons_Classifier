@@ -199,10 +199,10 @@ with gr.Blocks(css=custom_css) as demo:
 
         return top3, gr.update(value=message, visible=True), gr.update(visible=True), top_label, gr.update(value="", visible=False)
 
-demo.load(
-    fn=load_from_query,
-    inputs=[],
-    outputs=[output, share_message, copy_button, match_result, share_link]
-)
+    demo.load(
+        fn=load_from_query,
+        inputs=[],
+        outputs=[output, share_message, copy_button, match_result, share_link]
+    )
 
 demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
