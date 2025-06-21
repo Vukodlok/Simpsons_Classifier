@@ -152,7 +152,7 @@ with gr.Blocks(css=custom_css) as demo:
         visible=False
     )
 
-
+    js_inject = gr.HTML("", visible=False)
     submit_btn = gr.Button("Submit")
     clear_btn = gr.Button("Clear")
 
@@ -167,8 +167,7 @@ with gr.Blocks(css=custom_css) as demo:
     demo.load(
     lambda match: f"<script>window.topMatchCharacter = '{match}';</script>",
     inputs=match_result,
-    outputs=[],
-    every=False
+    outputs=js_inject
     )
 
     clear_btn.click(
