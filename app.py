@@ -148,7 +148,7 @@ with gr.Blocks(css=custom_css) as demo:
     )
 
     clear_btn.click(
-        lambda: (None, None, gr.update(visible=False)),
+        lambda: (None, None, gr.update(visible=False), gr.update(visible=False)),
         inputs=[],
         outputs=[image_input, output, share_message, copy_button]
     )
