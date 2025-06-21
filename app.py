@@ -69,7 +69,8 @@ def classify(image):
 def classify_with_copy(image):
     confidences, message_update = classify(image)
     top_label = list(confidences.keys())[0] if confidences else None
-    return confidences, message_update, gr.update(visible=True), top_label
+    js_snippet = f"<script>window.topMatchCharacter = '{top_label}';</script>" if top_label else ""
+    return confidences, message_update, gr.update(visible=True), top_label, gr.update(value=js_snippet)
 
 # Gradio css styling
 custom_css = """
@@ -161,7 +162,7 @@ with gr.Blocks(css=custom_css) as demo:
     submit_btn.click(
         fn=classify_with_copy,
         inputs=image_input,
-        outputs=[output, share_message, copy_button, match_result]
+        outputs=[output, share_message, copy_button, match_result, js_inject]
     )
 
     demo.load(
