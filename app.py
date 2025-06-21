@@ -61,7 +61,7 @@ def classify(image):
         confidences[label] = score
 
     top_label = list(confidences.keys())[0]
-    message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with **{top_label.replace('_', ' ').title()}**!</div>"
+    message = f"<div style='text-align:center; font-size:1.6em; color:#fada00;'>You most match with <strong>{top_label.replace('_', ' ').title()}</strong>!</div>"
 
     print(f'Returning: {confidences}')        
     return confidences, gr.update(value=message, visible=True)
@@ -119,7 +119,7 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("# Which Simpsons Character Are You?")
     gr.Markdown("Tip: If using webcam, be sure to **click the camera icon** to take a picture before submitting.")
 
-    image_input = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture", height=300)
+    image_input = gr.Image(type="pil", sources=["upload", "webcam"], label="Upload or Take a Picture", height=500)
     output = gr.Label(num_top_classes=3)
     share_message = gr.Markdown(
         "<h2 style='color: #fada00; font-family: Freckle Face, cursive;'>Click the button below to copy a link to share your results!</h2>",
