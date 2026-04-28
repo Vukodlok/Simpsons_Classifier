@@ -1,5 +1,4 @@
 torch
 torchvision
 transformers
-gradio==4.29.0
 Pillow
