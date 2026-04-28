@@ -116,5 +116,5 @@ with gr.Blocks(css=custom_css) as demo:
         lambda: (None, {}, gr.update(value="", visible=False)),
         outputs=[image_input, output, result_message]
     )
-
-demo.launch(share=True, server_name="0.0.0.0", server_port=7860)
+    
+demo.launch()
